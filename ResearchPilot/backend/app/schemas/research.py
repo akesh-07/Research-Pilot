@@ -1,0 +1,18 @@
+from pydantic import BaseModel
+from typing import List, Optional, Any
+
+class UploadedFileMeta(BaseModel):
+    filename: str
+    size: int
+    path: str
+
+class ResearchSubmitResponse(BaseModel):
+    status: str
+    research_question: str
+    uploaded_files: List[UploadedFileMeta]
+
+class SupervisorRequest(BaseModel):
+    research_question: str
+    goals: Optional[str] = None
+    constraints: Optional[str] = None
+    uploaded_files: List[UploadedFileMeta] = []
