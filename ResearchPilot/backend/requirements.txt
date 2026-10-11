@@ -5,3 +5,5 @@ google-generativeai
 python-multipart
 pydantic
 pydantic-settings
+requests
+arxiv

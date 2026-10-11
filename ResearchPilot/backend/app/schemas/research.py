@@ -3,8 +3,8 @@ from typing import List, Optional, Any
 
 class UploadedFileMeta(BaseModel):
     filename: str
-    size: int
-    path: str
+    size: Optional[int] = 0
+    path: Optional[str] = ""
     extracted_text_path: Optional[str] = None
 
 class ResearchSubmitResponse(BaseModel):

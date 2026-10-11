@@ -6,7 +6,7 @@ from app.core.logging import logger
 router = APIRouter()
 
 @router.post("/summarize", response_model=LiteratureResponse)
-async def summarize_literature(request: LiteratureRequest):
+def summarize_literature(request: LiteratureRequest):
     try:
         response = literature_agent.process(request)
         return response
