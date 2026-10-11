@@ -5,6 +5,7 @@ class UploadedFileMeta(BaseModel):
     filename: str
     size: int
     path: str
+    extracted_text_path: Optional[str] = None
 
 class ResearchSubmitResponse(BaseModel):
     status: str

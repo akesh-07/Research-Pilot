@@ -38,7 +38,7 @@ export default function ResearchInput() {
       const supervisorRes = await api.post('/supervisor/tasks', supervisorPayload);
       
       // Step 3: Navigate to Task Board with state
-      navigate('/tasks', { state: { workflow: supervisorRes.data } });
+      navigate('/tasks', { state: { workflow: supervisorRes.data, researchContext: supervisorPayload } });
     } catch (error) {
       console.error("Error submitting research:", error);
       alert("Failed to submit research or generate plan. Check console for details.");
@@ -90,6 +90,7 @@ export default function ResearchInput() {
             <input 
               type="file" 
               multiple 
+              accept=".pdf,.doc,.docx,.txt"
               onChange={(e) => setFiles(e.target.files)} 
               className="hidden" 
               id="file-upload"

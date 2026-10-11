@@ -1,26 +1,236 @@
-# Python
+# ==============================================================================
+# ResearchPilot Comprehensive .gitignore
+# Covers: Python / FastAPI, Node.js / React / Vite, Local LLMs & ML Weights,
+#         Environment & Secrets, Uploads & Storage, OS, IDEs, and Build Artifacts.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. AI, Machine Learning & Local LLM Model Weights
+# ------------------------------------------------------------------------------
+# Ignore all model weights, checkpoints, and downloaded LLMs (e.g. GGUF, bin, safetensors)
+models/*
+!models/.gitkeep
+*.gguf
+*.bin
+*.pt
+*.pth
+*.safetensors
+*.onnx
+*.ckpt
+*.h5
+*.joblib
+*.pkl
+*.model
+
+# Hugging Face, Torch & LM Studio caches
+.cache/
+**/.cache/
+.huggingface/
+.lmstudio/
+
+# ------------------------------------------------------------------------------
+# 2. Uploads, User Content & Extracted Documents
+# ------------------------------------------------------------------------------
+# Upload directories and processed document extracts
+uploads/*
+!uploads/.gitkeep
+backend/uploads/*
+!backend/uploads/.gitkeep
+storage/
+temp/
+tmp/
+*_extracted.txt
+*.extracted.txt
+
+# ------------------------------------------------------------------------------
+# 3. Environment Variables, Credentials & Secrets
+# ------------------------------------------------------------------------------
+# Never commit actual secret keys or environment variables
+.env
+.env.*
+*.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Preserve example and template files
+!.env.example
+!backend/.env.example
+!frontend/.env.example
+!.env.template
+!*.env.example
+!*.env.template
+
+# Private keys, certificates, and cloud credentials
+*.pem
+*.key
+*.cert
+*.crt
+credentials.json
+client_secret*.json
+serviceAccountKey*.json
+
+# ------------------------------------------------------------------------------
+# 4. Backend (Python / FastAPI / Uvicorn)
+# ------------------------------------------------------------------------------
+# Byte-compiled / optimized files
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environments
 .venv/
 venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+virtualenv/
+.conda/
 
-# FastAPI
-uploads/
-
-# React
-node_modules/
+# Distribution & Packaging
+build/
+develop-eggs/
 dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.manifest
+*.spec
 
-# Environment
-.env
+# Pip & Package managers
+pip-log.txt
+pip-delete-this-directory.txt
+.pip-cache/
 
-# Logs
+# Testing, Type Checking & Code Quality
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+
+# Jupyter Notebooks & Data Science
+.ipynb_checkpoints/
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite3-journal
+
+# ------------------------------------------------------------------------------
+# 5. Frontend (React / Vite / Node.js)
+# ------------------------------------------------------------------------------
+# Dependencies
+node_modules/
+jspm_packages/
+
+# Production builds
+dist/
+dist-ssr/
+out/
+
+# Vite, Turbo & Build caches
+.vite/
+.turbo/
+.parcel-cache/
+.next/
+.nuxt/
+.output/
+
+# Package manager logs & general logs
+logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# IDE
-.vscode/
+# ------------------------------------------------------------------------------
+# 6. IDEs, Editors & Tooling
+# ------------------------------------------------------------------------------
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains (PyCharm, WebStorm, etc.)
 .idea/
+*.iml
+*.iws
+*.ipr
 
-# OS
+# Visual Studio & Windows Tooling
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Vim / Emacs / Sublime Text
+*~
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# ------------------------------------------------------------------------------
+# 7. Operating System Artifacts
+# ------------------------------------------------------------------------------
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
 Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.directory
+
+# ------------------------------------------------------------------------------
+# 8. Temporary & Backup Files
+# ------------------------------------------------------------------------------
+*.tmp
+*.temp
+*.bak
+*.orig

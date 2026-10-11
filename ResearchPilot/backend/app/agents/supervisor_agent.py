@@ -1,6 +1,6 @@
 from app.schemas.supervisor import SupervisorResponse
 from app.schemas.research import SupervisorRequest
-from app.services.gemini_service import gemini_service
+from app.services.local_llm_service import local_llm_service
 import json
 
 class SupervisorAgent:
@@ -70,7 +70,7 @@ Expected JSON Output Format (Do not output anything else):
             uploaded_files=file_metadata_str
         )
         
-        response_dict = gemini_service.generate_json_response(prompt)
+        response_dict = local_llm_service.generate_json_response(prompt)
         # Parse it into the Pydantic schema
         return SupervisorResponse(**response_dict)
 

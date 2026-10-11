@@ -5,6 +5,7 @@ from typing import List
 from app.core.config import settings
 from app.core.logging import logger
 from app.schemas.research import UploadedFileMeta
+from app.services.extraction_service import extract_content
 
 ALLOWED_EXTENSIONS = {".pdf", ".docx", ".txt"}
 
@@ -37,10 +38,21 @@ def save_upload_files(files: List[UploadFile]) -> List[UploadedFileMeta]:
                     logger.warning(f"File {file.filename} exceeds max size {settings.MAX_FILE_SIZE_MB}MB")
                     continue
                     
+                # Extract content
+                extracted_text = extract_content(file_path, ext)
+                extracted_text_path = None
+                
+                if extracted_text:
+                    extracted_filename = f"{os.path.splitext(file.filename)[0]}_extracted.txt"
+                    extracted_text_path = os.path.join(settings.UPLOAD_DIR, extracted_filename)
+                    with open(extracted_text_path, "w", encoding="utf-8") as f:
+                        f.write(extracted_text)
+                    
                 meta = UploadedFileMeta(
                     filename=file.filename,
                     size=size,
-                    path=file_path
+                    path=file_path,
+                    extracted_text_path=extracted_text_path
                 )
                 uploaded_files_meta.append(meta)
             except Exception as e:
