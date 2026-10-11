@@ -228,40 +228,70 @@ export default function TaskBoard() {
                 </div>
               )}
 
-              {/* Web Discovered Papers Section (arXiv) */}
+              {/* Web Discovered Papers Section (Multi-Source) */}
               {discoveredPapers.length > 0 && (
                 <div className="space-y-4 pt-4">
-                  <div className="flex items-center gap-2">
-                    <Globe className="w-5 h-5 text-purple-400" />
-                    <h3 className="text-xl font-bold text-textPrimary">Discovered Scientific Papers (arXiv)</h3>
-                    <span className="text-xs px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                      {discoveredPapers.length} Retrieved from Web
-                    </span>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <Globe className="w-5 h-5 text-purple-400" />
+                      <h3 className="text-xl font-bold text-textPrimary">Discovered Scientific Papers</h3>
+                      <span className="text-xs px-2.5 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30 font-medium">
+                        {discoveredPapers.length} Retrieved from Open Web
+                      </span>
+                    </div>
+
+                    {/* Sources Queried Pills */}
+                    {researchContext?.sources?.length > 0 && (
+                      <div className="flex items-center gap-1.5 text-xs text-textSecondary">
+                        <span>Queried:</span>
+                        {researchContext.sources.map((src, i) => (
+                          <span key={i} className="px-2 py-0.5 bg-surface border border-border rounded text-textPrimary font-mono text-[11px] uppercase">
+                            {src}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 gap-6">
-                    {discoveredPapers.map((paper, idx) => (
-                      <div key={idx} className="card bg-surface/60 border border-primary/30 relative overflow-hidden hover:border-primary/60 transition-all duration-300">
-                        <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-purple-500" />
-                        <div className="ml-2">
-                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
-                            <h4 className="text-lg font-bold text-white leading-snug">{paper.title || paper.filename}</h4>
-                            <div className="flex items-center gap-2 shrink-0">
-                              <span className="text-xs px-2.5 py-1 rounded-md bg-primary/20 text-primary border border-primary/30 font-medium">
-                                arXiv Verified
-                              </span>
-                              {(paper.url || paper.pdf_url) && (
-                                <a 
-                                  href={paper.url || paper.pdf_url} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="flex items-center gap-1.5 text-xs px-3 py-1 rounded-md bg-surface hover:bg-background border border-border hover:border-primary text-primary transition-colors font-semibold"
-                                >
-                                  Read Paper <ExternalLink className="w-3.5 h-3.5" />
-                                </a>
-                              )}
+                    {discoveredPapers.map((paper, idx) => {
+                      const sourceName = paper.source?.toLowerCase() || 'arxiv';
+                      let badgeStyle = 'bg-purple-500/20 text-purple-300 border-purple-500/40';
+                      let badgeLabel = 'arXiv Verified';
+                      
+                      if (sourceName === 'pubmed') {
+                        badgeStyle = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+                        badgeLabel = 'PubMed Indexed';
+                      } else if (sourceName === 'openalex') {
+                        badgeStyle = 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40';
+                        badgeLabel = 'OpenAlex Open Access';
+                      } else if (sourceName === 'crossref') {
+                        badgeStyle = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+                        badgeLabel = 'Crossref Peer-Reviewed';
+                      }
+
+                      return (
+                        <div key={idx} className="card bg-surface/60 border border-primary/30 relative overflow-hidden hover:border-primary/60 transition-all duration-300">
+                          <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-purple-500" />
+                          <div className="ml-2">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
+                              <h4 className="text-lg font-bold text-white leading-snug">{paper.title || paper.filename}</h4>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <span className={`text-xs px-2.5 py-1 rounded-md border font-medium ${badgeStyle}`}>
+                                  {badgeLabel}
+                                </span>
+                                {(paper.url || paper.pdf_url) && (
+                                  <a 
+                                    href={paper.url || paper.pdf_url} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1.5 text-xs px-3 py-1 rounded-md bg-surface hover:bg-background border border-border hover:border-primary text-primary transition-colors font-semibold"
+                                  >
+                                    Read Paper <ExternalLink className="w-3.5 h-3.5" />
+                                  </a>
+                                )}
+                              </div>
                             </div>
-                          </div>
 
                           {/* Paper Metadata: Authors & Year */}
                           <div className="flex flex-wrap items-center gap-4 text-xs text-textSecondary mb-4">
@@ -305,7 +335,8 @@ export default function TaskBoard() {
                           )}
                         </div>
                       </div>
-                    ))}
+                    );
+                  })}
                   </div>
                 </div>
               )}

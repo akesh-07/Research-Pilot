@@ -10,10 +10,12 @@ class UploadedFileMeta(BaseModel):
 class ResearchSubmitResponse(BaseModel):
     status: str
     research_question: str
+    sources: Optional[List[str]] = []
     uploaded_files: List[UploadedFileMeta]
 
 class SupervisorRequest(BaseModel):
     research_question: str
     goals: Optional[str] = None
     constraints: Optional[str] = None
+    sources: Optional[List[str]] = []
     uploaded_files: List[UploadedFileMeta] = []

@@ -2,14 +2,10 @@ import requests
 import json
 
 payload = {
-    "research_question": "Machine learning for research workflows and multi-agent systems",
-    "uploaded_files": [
-        {
-            "filename": "MP RP1.pdf",
-            "extracted_text_path": "backend/uploads/MP RP1_extracted.txt"
-        }
-    ],
-    "max_web_results": 1
+    "research_question": "CRISPR gene therapy delivery mechanisms",
+    "uploaded_files": [],
+    "sources": ["pubmed", "openalex"],
+    "max_web_results": 2
 }
 
 try:

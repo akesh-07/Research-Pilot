@@ -5,12 +5,14 @@ from app.schemas.research import UploadedFileMeta
 class LiteratureRequest(BaseModel):
     research_question: str
     uploaded_files: List[UploadedFileMeta] = []
+    sources: Optional[List[str]] = ["arxiv", "pubmed", "openalex", "crossref"]
     max_web_results: Optional[int] = 4
 
 class PaperSummary(BaseModel):
     filename: str
     title: Optional[str] = None
     source_type: str = "uploaded"  # "uploaded" or "web_discovered"
+    source: Optional[str] = "uploaded"  # "uploaded", "arxiv", "pubmed", "openalex", "crossref"
     url: Optional[str] = None
     pdf_url: Optional[str] = None
     authors: Optional[List[str]] = []

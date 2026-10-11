@@ -3,7 +3,7 @@ import re
 from typing import List, Dict
 from app.schemas.literature import LiteratureRequest, LiteratureResponse, PaperSummary
 from app.services.local_llm_service import local_llm_service
-from app.services.arxiv_service import arxiv_service
+from app.services.academic_search_service import academic_search_service
 from app.core.logging import logger
 from app.core.config import settings
 
@@ -29,11 +29,12 @@ Return valid JSON only in the following format:
 """
 
         self.web_paper_prompt = """You are the Literature Search Agent.
-Analyze this academic paper found on arXiv and explain its relevance to the user's research question.
+Analyze this academic paper found on {source_name} and explain its relevance to the user's research question.
 
 Research Question: {research_question}
 
 Paper Title: {paper_title}
+Source: {source_name}
 Abstract:
 {abstract}
 
@@ -52,18 +53,18 @@ Return valid JSON only in the following format:
 Synthesize the key insights from the analyzed literature with respect to the user's research question.
 
 Research Question: {research_question}
-Analyzed Papers:
+Analyzed Papers from Selected Sources ({selected_sources}):
 {paper_list}
 
 Return valid JSON only in the following format:
 {{
-  "synthesis": "A coherent synthesis summarizing the overall research landscape, key methodologies identified, and open opportunities related to the research question."
+  "synthesis": "A coherent synthesis summarizing the overall research landscape, comparing methodologies identified, and highlighting open opportunities related to the research question."
 }}
 """
 
     def generate_search_query(self, research_question: str) -> str:
-        """Derive an effective arXiv search query from the research question."""
-        prompt = f"""You are a research assistant. Extract 3 to 6 essential academic keywords from this research question to search scientific papers on arXiv.
+        """Derive an effective academic search query from the research question."""
+        prompt = f"""You are a research assistant. Extract 3 to 6 essential academic keywords from this research question to search scientific literature databases.
 Do not use boolean operators, quotes, or punctuation.
 
 Research Question: {research_question}
@@ -115,6 +116,7 @@ Return valid JSON only:
                     filename=file_meta.filename,
                     title=file_meta.filename,
                     source_type="uploaded",
+                    source="uploaded",
                     summary="No text could be extracted from this file, or it was not uploaded properly.",
                     important_points=["Check file format or contents."]
                 ))
@@ -140,6 +142,7 @@ Return valid JSON only:
                     filename=file_meta.filename,
                     title=file_meta.filename,
                     source_type="uploaded",
+                    source="uploaded",
                     summary=response_dict.get("summary", "No summary generated."),
                     important_points=response_dict.get("important_points", [])
                 )
@@ -150,28 +153,43 @@ Return valid JSON only:
                     filename=file_meta.filename,
                     title=file_meta.filename,
                     source_type="uploaded",
+                    source="uploaded",
                     summary=f"Failed to process this document. Error: {str(e)}",
                     important_points=["Document could not be analyzed."]
                 )
                 uploaded_summaries.append(summary)
 
         # ----------------------------------------------------------------------
-        # 2. Search arXiv for Related Academic Literature (Approach 1)
+        # 2. Search Academic Sources (Filtered to User-Selected Checkboxes)
         # ----------------------------------------------------------------------
-        max_web_results = request.max_web_results or 3
+        max_web_results = request.max_web_results or 4
+        selected_sources = request.sources if request.sources else ["arxiv", "pubmed", "openalex", "crossref"]
+        logger.info(f"Filtering search to user selected sources: {selected_sources}")
+
         try:
             search_query = self.generate_search_query(request.research_question)
             logger.info(f"Generated academic search query: '{search_query}'")
-            arxiv_results = arxiv_service.search_papers(search_query, max_results=max_web_results)
+            
+            raw_papers = academic_search_service.search(
+                query=search_query,
+                sources=selected_sources,
+                max_total_results=max_web_results
+            )
 
-            # If initial specific search returned nothing, fallback to the raw question terms
-            if not arxiv_results and search_query != request.research_question:
-                logger.info("Retrying arXiv search with original research question terms...")
-                arxiv_results = arxiv_service.search_papers(request.research_question, max_results=max_web_results)
+            # If specific search query yielded nothing, retry with raw question terms
+            if not raw_papers and search_query != request.research_question:
+                logger.info("Retrying search with raw research question terms...")
+                raw_papers = academic_search_service.search(
+                    query=request.research_question,
+                    sources=selected_sources,
+                    max_total_results=max_web_results
+                )
 
-            for paper in arxiv_results:
+            for paper in raw_papers:
+                source_name = paper.get("source", "academic repository").upper()
                 try:
                     prompt = self.web_paper_prompt.format(
+                        source_name=source_name,
                         research_question=request.research_question,
                         paper_title=paper["title"],
                         abstract=paper["abstract"]
@@ -182,35 +200,39 @@ Return valid JSON only:
                         filename=paper["title"],
                         title=paper["title"],
                         source_type="web_discovered",
-                        url=paper["url"],
-                        pdf_url=paper["pdf_url"],
-                        authors=paper["authors"],
-                        year=paper["year"],
+                        source=paper.get("source", "web"),
+                        url=paper.get("url"),
+                        pdf_url=paper.get("pdf_url"),
+                        authors=paper.get("authors", []),
+                        year=paper.get("year"),
                         summary=llm_res.get("summary", paper["abstract"][:400] + "..."),
                         important_points=llm_res.get("important_points", [
-                            f"Primary Category: {paper.get('primary_category', 'arXiv')}",
-                            f"Published: {paper.get('year', 'Recent')}"
+                            f"Source: {source_name}",
+                            f"Category: {paper.get('primary_category', 'Scientific Literature')}",
+                            f"Year: {paper.get('year', 'Recent')}"
                         ])
                     )
                 except Exception as e:
-                    logger.warning(f"LLM analysis failed for arXiv paper '{paper['title']}': {e}. Using abstract fallback.")
+                    logger.warning(f"LLM analysis failed for {source_name} paper '{paper['title']}': {e}. Using abstract fallback.")
                     paper_summary = PaperSummary(
                         filename=paper["title"],
                         title=paper["title"],
                         source_type="web_discovered",
-                        url=paper["url"],
-                        pdf_url=paper["pdf_url"],
-                        authors=paper["authors"],
-                        year=paper["year"],
+                        source=paper.get("source", "web"),
+                        url=paper.get("url"),
+                        pdf_url=paper.get("pdf_url"),
+                        authors=paper.get("authors", []),
+                        year=paper.get("year"),
                         summary=paper["abstract"],
                         important_points=[
-                            f"Primary Category: {paper.get('primary_category', 'arXiv')}",
-                            f"Published Year: {paper.get('year', 'N/A')}"
+                            f"Indexed in: {source_name}",
+                            f"Field: {paper.get('primary_category', 'Academic Literature')}",
+                            f"Publication Year: {paper.get('year', 'N/A')}"
                         ]
                     )
                 discovered_papers.append(paper_summary)
         except Exception as e:
-            logger.error(f"Error during web literature retrieval: {e}")
+            logger.error(f"Error during academic literature retrieval: {e}")
 
         # ----------------------------------------------------------------------
         # 3. Generate Cross-Literature Synthesis
@@ -220,21 +242,23 @@ Return valid JSON only:
         if all_papers:
             try:
                 paper_descriptions = "\n".join([
-                    f"- [{p.source_type.upper()}] {p.title or p.filename}: {p.summary[:200]}..."
+                    f"- [{p.source.upper() if p.source else 'DOC'}] {p.title or p.filename}: {p.summary[:200]}..."
                     for p in all_papers
                 ])
                 synth_prompt = self.synthesis_prompt.format(
                     research_question=request.research_question,
+                    selected_sources=", ".join([s.upper() for s in selected_sources]),
                     paper_list=paper_descriptions
                 )
                 synth_res = local_llm_service.generate_json_response(synth_prompt)
                 synthesis_text = synth_res.get("synthesis", "")
             except Exception as e:
                 logger.warning(f"Synthesis generation failed: {e}")
+                sources_str = ", ".join([s.capitalize() for s in selected_sources])
                 if discovered_papers and uploaded_summaries:
-                    synthesis_text = f"Analyzed {len(uploaded_summaries)} uploaded paper(s) and {len(discovered_papers)} web-discovered paper(s) from arXiv regarding '{request.research_question}'."
+                    synthesis_text = f"Analyzed {len(uploaded_summaries)} uploaded paper(s) and {len(discovered_papers)} web-discovered paper(s) from {sources_str} regarding '{request.research_question}'."
                 elif discovered_papers:
-                    synthesis_text = f"Retrieved and analyzed {len(discovered_papers)} related research papers from arXiv relevant to '{request.research_question}'."
+                    synthesis_text = f"Retrieved and analyzed {len(discovered_papers)} related research papers from {sources_str} relevant to '{request.research_question}'."
                 else:
                     synthesis_text = f"Analyzed {len(uploaded_summaries)} uploaded research paper(s)."
 

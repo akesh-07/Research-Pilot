@@ -7,7 +7,7 @@ from app.core.logging import logger
 router = APIRouter()
 
 @router.post("/tasks", response_model=SupervisorResponse)
-async def generate_tasks(request: SupervisorRequest):
+def generate_tasks(request: SupervisorRequest):
     try:
         response = supervisor_agent.process(request)
         return response
