@@ -15,7 +15,18 @@ class LocalLLMService:
             response = self.client.chat.completions.create(
                 model="qwen_qwen3-8b", # The exact identifier from LM Studio
                 messages=[
-                    {"role": "system", "content": "You are a data pipeline. You MUST output ONLY valid JSON. No markdown formatting, no explanations, no text before or after the JSON."},
+                    {
+                        "role": "system",
+                        "content": (
+                            "You are ResearchPilot AI, an expert research intelligence system strictly and exclusively "
+                            "specialized in biomedical, biochemical, and pharmaceutical drug discovery research. "
+                            "CRITICAL ADHERENCE CONSTRAINT: You must ALWAYS stay strictly within the exact scope of the "
+                            "user's research prompt. All generated tasks, paper summaries, extracted points, and syntheses "
+                            "must be directly and specifically relevant ONLY to what research the user requested. "
+                            "Never deviate into unrelated diseases, unrequested targets, or generic scientific trivia. "
+                            "You MUST output ONLY valid JSON. No markdown formatting, no explanations, no text before or after the JSON."
+                        )
+                    },
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.6

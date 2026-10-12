@@ -38,8 +38,8 @@ export default function TaskBoard() {
     return (
       <div className="text-center py-20">
         <h2 className="text-2xl font-bold mb-4">No Active Workflow</h2>
-        <p className="text-textSecondary mb-6">Start a new research mission to generate tasks.</p>
-        <Link to="/" className="btn-primary">Go to Research Input</Link>
+        <p className="text-textSecondary mb-6">Start a new drug discovery mission to generate tasks.</p>
+        <Link to="/" className="btn-primary">Go to Drug Discovery Input</Link>
       </div>
     );
   }
@@ -108,7 +108,7 @@ export default function TaskBoard() {
           className="btn-primary flex items-center gap-2 py-3 px-6 text-lg font-bold shadow-lg shadow-primary/20"
         >
           {isExecuting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5 fill-current" />}
-          {isExecuting ? "Executing Pipeline..." : "Start Research"}
+          {isExecuting ? "Executing Pipeline..." : "Execute Drug Discovery Pipeline"}
         </button>
       </div>
 
@@ -149,7 +149,7 @@ export default function TaskBoard() {
           <div className="flex items-center justify-between border-b border-border pb-4">
             <h2 className="text-2xl font-bold flex items-center gap-3">
               <BookOpen className="w-7 h-7 text-primary" />
-              Literature Analysis & Research Synthesis
+              Drug Discovery Literature Analysis & Synthesis
             </h2>
             <span className="text-xs px-3 py-1 bg-surface border border-border text-textSecondary rounded-full">
               {uploadedPapers.length} Uploaded • {discoveredPapers.length} Discovered on Web

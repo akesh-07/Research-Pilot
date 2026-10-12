@@ -9,29 +9,48 @@ from app.core.config import settings
 
 class LiteratureAgent:
     def __init__(self):
-        self.uploaded_paper_prompt = """You are the Literature Search Agent.
-Your task is to analyze the content of a provided research paper, generate a summary, and extract important points, keeping the research question in mind.
+        self.uploaded_paper_prompt = """You are the Literature Search Agent of ResearchPilot, strictly and exclusively specialized in pharmaceutical, biomedical, and computational drug discovery.
 
-Research Question: {research_question}
+CRITICAL USER QUERY ADHERENCE DIRECTIVE:
+Your analysis, summary, and extracted points MUST be strictly and exclusively relevant to what the user specifically wants to research:
+User's Specific Research Question: "{research_question}"
+
+INSTRUCTIONS:
+1. Analyze the provided document ONLY through the perspective of how it answers, supports, or informs the User's Specific Research Question.
+2. DO NOT include general paper trivia, peripheral study background, or unrelated findings from the paper.
+3. In "summary": State clearly and specifically how this paper directly informs or answers the User's Research Question ("{research_question}"). Highlight specific biological targets, chemical entities, binding affinities, or mechanisms directly pertinent to what the user asked.
+4. In "important_points": Extract 3 to 5 key points that directly answer or provide actionable evidence for "{research_question}". Every single bullet point must directly relate to the user's research focus.
+
+User's Specific Research Question: {research_question}
 
 Paper Content:
 {paper_content}
 
 Return valid JSON only in the following format:
 {{
-  "summary": "A comprehensive summary of the paper in the context of the research question...",
+  "summary": "Concise, high-density summary explaining specifically how this paper informs or answers the user's research question regarding {research_question}...",
   "important_points": [
-    "Key finding 1...",
-    "Methodology detail...",
-    "Limitation or future work..."
+    "Specific finding directly relevant to the user's research question...",
+    "Identified target, chemical scaffold, or mechanism addressing the user's question...",
+    "Quantitative assay result (IC50, Kd, Ki), selectivity, or ADMET data addressing the user's question...",
+    "Methodological insight or limitation directly impacting the user's research goal..."
   ]
 }}
 """
 
-        self.web_paper_prompt = """You are the Literature Search Agent.
-Analyze this academic paper found on {source_name} and explain its relevance to the user's research question.
+        self.web_paper_prompt = """You are the Literature Search Agent of ResearchPilot, strictly dedicated to pharmaceutical, biochemical, and computational drug discovery.
 
-Research Question: {research_question}
+CRITICAL USER QUERY ADHERENCE DIRECTIVE:
+Your analysis, summary, and extracted points MUST be strictly and exclusively anchored to the User's Specific Research Question:
+User's Specific Research Question: "{research_question}"
+
+INSTRUCTIONS:
+1. Critically examine the academic paper abstract retrieved from {source_name} ONLY for information that directly addresses, answers, or provides evidence for the user's specific inquiry.
+2. DO NOT produce a generic summary of the abstract. Filter out all irrelevant or tangential context.
+3. In "summary": Explicitly describe how this study's findings directly address or inform the user's question regarding "{research_question}". Identify relevant molecular targets, chemical compounds, mechanisms of action, or therapeutic insights.
+4. In "important_points": Extract 3 key bullet points that provide direct scientific answers, assay data, or experimental methodologies relevant to what the user asked.
+
+User's Specific Research Question: {research_question}
 
 Paper Title: {paper_title}
 Source: {source_name}
@@ -40,34 +59,50 @@ Abstract:
 
 Return valid JSON only in the following format:
 {{
-  "summary": "A concise summary explaining the paper's core contributions and relevance to the research question...",
+  "summary": "Summary strictly focused on what this paper reveals regarding the user's specific research question: {research_question}...",
   "important_points": [
-    "Key technique or methodology...",
-    "Notable result or finding...",
-    "Scientific relevance..."
+    "Key finding or biological mechanism directly informing the user's inquiry...",
+    "Candidate chemical entity, modeling technique, or assay result relevant to the user's inquiry...",
+    "Pharmacological relevance or actionable outcome directly addressing what the user wants to know..."
   ]
 }}
 """
 
-        self.synthesis_prompt = """You are the Literature Search Agent.
-Synthesize the key insights from the analyzed literature with respect to the user's research question.
+        self.synthesis_prompt = """You are the Literature Search Agent of ResearchPilot, strictly specialized in pharmaceutical drug discovery intelligence.
 
-Research Question: {research_question}
+CRITICAL USER QUERY ADHERENCE DIRECTIVE:
+You must synthesize the analyzed literature STRICTLY AND EXCLUSIVELY to answer what the user specifically asked in their research question:
+User's Specific Research Question: "{research_question}"
+
+INSTRUCTIONS:
+1. Synthesize the collected literature into a cohesive, rigorous scientific analysis focused entirely on answering "{research_question}".
+2. DO NOT provide a vague or generalized overview. Directly address what the evidence reveals about the specific target, disease, chemical scaffolds, or mechanisms the user asked about.
+3. Compare the methodologies (in silico screening, molecular dynamics, in vitro assays) reported in the papers specifically applied to the user's question.
+4. Highlight concrete findings: validated candidate molecules, binding potencies, confirmed mechanisms of action, and contradictory or unaddressed challenges directly related to "{research_question}".
+5. Conclude with specific, actionable opportunities to solve or advance the user's exact research objective.
+
+User's Specific Research Question: {research_question}
 Analyzed Papers from Selected Sources ({selected_sources}):
 {paper_list}
 
 Return valid JSON only in the following format:
 {{
-  "synthesis": "A coherent synthesis summarizing the overall research landscape, comparing methodologies identified, and highlighting open opportunities related to the research question."
+  "synthesis": "An in-depth, rigorous scientific synthesis directly answering the user's research question regarding {research_question}, comparing methodologies across retrieved papers, synthesizing identified targets and chemical leads, and highlighting open therapeutic opportunities specifically for this inquiry."
 }}
 """
 
     def generate_search_query(self, research_question: str) -> str:
         """Derive an effective academic search query from the research question."""
-        prompt = f"""You are a research assistant. Extract 3 to 6 essential academic keywords from this research question to search scientific literature databases.
-Do not use boolean operators, quotes, or punctuation.
+        prompt = f"""You are an expert biomedical research assistant strictly specialized in pharmaceutical drug discovery and medicinal chemistry.
 
-Research Question: {research_question}
+CRITICAL KEYWORD EXTRACTION DIRECTIVE:
+Extract 3 to 6 essential academic keywords directly derived from the user's specific research question.
+The keywords MUST strictly target the exact disease, biological target, chemical class, or therapeutic mechanism requested by the user.
+- DO NOT add external or unrequested diseases or drugs.
+- Prioritize high-specificity terms (e.g., target protein names, specific mutations, disease nomenclature, mechanism of action, or screening method) present in or directly implied by the question.
+- Do not use boolean operators, quotes, or punctuation.
+
+User's Specific Research Question: {research_question}
 
 Return valid JSON only:
 {{
@@ -242,7 +277,7 @@ Return valid JSON only:
         if all_papers:
             try:
                 paper_descriptions = "\n".join([
-                    f"- [{p.source.upper() if p.source else 'DOC'}] {p.title or p.filename}: {p.summary[:200]}..."
+                    f"- [{p.source.upper() if p.source else 'DOC'}] {p.title or p.filename}: {p.summary[:600]}..."
                     for p in all_papers
                 ])
                 synth_prompt = self.synthesis_prompt.format(

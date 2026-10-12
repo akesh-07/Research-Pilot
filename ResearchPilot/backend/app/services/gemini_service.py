@@ -12,7 +12,19 @@ class GeminiService:
         else:
             genai.configure(api_key=self.api_key)
             
-        self.model = genai.GenerativeModel(settings.GEMINI_MODEL)
+        system_instruction = (
+            "You are ResearchPilot AI, an expert research intelligence system strictly and exclusively "
+            "specialized in biomedical, biochemical, and pharmaceutical drug discovery research. "
+            "CRITICAL ADHERENCE CONSTRAINT: You must ALWAYS stay strictly within the exact scope of the "
+            "user's research prompt. All generated tasks, paper summaries, extracted points, and syntheses "
+            "must be directly and specifically relevant ONLY to what research the user requested. "
+            "Never deviate into unrelated diseases, unrequested targets, or generic scientific trivia. "
+            "You MUST output ONLY valid JSON."
+        )
+        self.model = genai.GenerativeModel(
+            settings.GEMINI_MODEL,
+            system_instruction=system_instruction
+        )
 
     def generate_json_response(self, prompt: str) -> dict:
         if not self.api_key:

@@ -112,18 +112,21 @@ export default function ResearchInput() {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold mb-2">Start a New Research Mission</h1>
-        <p className="text-textSecondary">Provide your objectives, choose open academic databases, and let the agents plan and discover.</p>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-3 uppercase tracking-wider">
+          Pharmaceutical & Biomedical Intelligence
+        </div>
+        <h1 className="text-3xl font-bold mb-2">Drug Discovery Research Mission</h1>
+        <p className="text-textSecondary">Specify your therapeutic targets, pharmacological goals, and academic literature databases to deploy autonomous AI agents.</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="card space-y-6">
         {/* Core Question */}
         <div>
-          <label className="block text-sm font-medium mb-2">Research Question *</label>
+          <label className="block text-sm font-medium mb-2">Drug Discovery Research Question *</label>
           <textarea 
             {...register("research_question", { required: "This is required" })}
             className="input-field min-h-[100px]"
-            placeholder="What is the core question you are trying to answer? (e.g. Graph neural networks for Alzheimer's drug discovery)"
+            placeholder="What is your drug discovery research question? (e.g. Discovery of selective allosteric inhibitors for KRAS G12D in pancreatic cancer using molecular dynamics and generative AI)"
           />
           {errors.research_question && <span className="text-red-400 text-sm mt-1">{errors.research_question.message}</span>}
         </div>
@@ -131,19 +134,19 @@ export default function ResearchInput() {
         {/* Goals & Constraints */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium mb-2">Goals</label>
+            <label className="block text-sm font-medium mb-2">Therapeutic Goals</label>
             <textarea 
               {...register("goals")}
               className="input-field min-h-[80px]"
-              placeholder="E.g., Publish a survey, discover candidate targets..."
+              placeholder="E.g., Screen candidate ligands with Kd < 50nM, evaluate ADMET properties, identify novel bioactive chemical scaffolds..."
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Constraints</label>
+            <label className="block text-sm font-medium mb-2">Pharmacological Constraints</label>
             <textarea 
               {...register("constraints")}
               className="input-field min-h-[80px]"
-              placeholder="E.g., Focus on post-2021 literature, human clinical trials..."
+              placeholder="E.g., Obey Lipinski's Rule of 5, minimize wild-type off-target toxicity, focus on post-2022 literature..."
             />
           </div>
         </div>
@@ -243,10 +246,10 @@ export default function ResearchInput() {
           {loading ? (
             <>
               <Loader2 className="animate-spin mr-2" />
-              Planning Research Mission...
+              Planning Drug Discovery Mission...
             </>
           ) : (
-            'Generate Task Plan & Search Literature'
+            'Generate Drug Discovery Plan & Search Literature'
           )}
         </button>
       </form>
