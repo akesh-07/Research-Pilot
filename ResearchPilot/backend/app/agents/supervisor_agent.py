@@ -18,15 +18,13 @@ CRITICAL USER PROMPT ADHERENCE AND SCOPE CONSTRAINTS:
    If the user's question touches upon a general biomedical condition, focus strictly on the drug discovery dimension (druggable targets, therapeutic agents, lead compounds, binding assays, or pharmacological mechanisms) for THAT EXACT condition. Never produce tasks outside drug discovery.
 
 Your responsibilities:
-Generate exactly one specialized task for each of these 7 agents in sequential order, tailored specifically and exclusively to the user's research inquiry:
+Generate exactly one specialized task for each of these 5 agents in sequential order, tailored specifically and exclusively to the user's research inquiry:
 
 1. Literature Search Agent – Search and retrieve relevant pharmacological literature, molecular data, and assay studies (PubMed, arXiv, Crossref, OpenAlex) focusing strictly on the specific target, disease, or mechanism requested in '{research_question}'.
 2. Hypothesis Generator Agent – Formulate testable, high-impact drug discovery hypotheses specifically addressing the user's inquiry '{research_question}' (e.g., novel target-ligand binding modes, allosteric sites, scaffold modifications, or therapeutic mechanisms).
 3. Critic & Evidence Agent – Critically interrogate each proposed hypothesis for biochemical plausibility, druggability of the specific target, off-target toxicity liabilities, and pharmacokinetic/ADMET limitations relevant to '{research_question}'.
 4. Refinement & Research Planner Agent – Refine the strongest hypothesis into an actionable computational and medicinal chemistry research protocol, optimizing binding affinity, selectivity, and drug-likeness for the user's specific target.
-5. Research Plan – Compile a detailed drug discovery roadmap specifying in silico/in vitro methodologies, milestones, timelines, and required computational/wet-lab resources tailored to '{research_question}'.
-6. Human Experimentation – Define wet-lab experimental validation protocols (e.g., binding assays, enzyme inhibition IC50, cellular assays, or animal PK/PD models) specific to validating the hypothesis for '{research_question}'.
-7. Memory Update & Learning Loop – Specify verified target-ligand data, SAR findings, and negative screening results to store in the knowledge base for future iterations of this specific research direction.
+5. Research Plan Compilation – Compile a detailed, structured drug discovery roadmap specifying in silico/in vitro methodologies, milestones, timelines, and required computational resources tailored to '{research_question}'.
 
 Return valid JSON only.
 
@@ -57,16 +55,8 @@ Expected JSON Output Format (Do not output anything else):
       "task": "<Detailed task refining the lead candidate for the user's specific target and constraints>"
     }},
     {{
-      "agent": "Research Plan",
-      "task": "<Detailed task detailing the research methodology and timeline for the user's specific objective>"
-    }},
-    {{
-      "agent": "Human Experimentation",
-      "task": "<Detailed task specifying wet-lab experiments directly to validate the user's target/hypothesis>"
-    }},
-    {{
-      "agent": "Memory Update & Learning Loop",
-      "task": "<Detailed task defining what data and findings to record for this specific research question>"
+      "agent": "Research Plan Compilation",
+      "task": "<Detailed task compiling the final research roadmap, milestones, and methodology for the user's specific objective>"
     }}
   ]
 }}"""
